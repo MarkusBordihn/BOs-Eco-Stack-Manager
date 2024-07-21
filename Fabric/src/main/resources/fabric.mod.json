@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "eco_stack_manager",
+  "version": "${version}",
+  "name": "Eco Stack Manager",
+  "description": "Eco Stack Manager helps optimize Minecraft servers by managing and cleaning up item stacks, XP orbs and user inventories.",
+  "authors": [
+    "Markus Bordihn"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/eco-stack-manager",
+    "issues": "https://github.com/MarkusBordihn/BOs-Eco-Stack-Manager/issues"
+  },
+  "license": "MIT",
+  "icon": "logo.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "de.markusbordihn.ecostackmanager.EcoStackManager"
+    ],
+    "client": [
+      "de.markusbordihn.ecostackmanager.EcoStackManagerClient"
+    ]
+  },
+  "mixins": [],
+  "depends": {
+    "fabricloader": ">=0.13",
+    "fabric": "*",
+    "minecraft": "1.18.2",
+    "java": ">=17"
+  },
+  "suggests": {}
+}

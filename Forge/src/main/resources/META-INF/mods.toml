@@ -1,0 +1,28 @@
+modLoader = "javafml"
+loaderVersion = "[40,)"
+license = "MIT"
+issueTrackerURL = "https://github.com/MarkusBordihn/BOs-Eco-Stack-Manager/issues"
+
+[[mods]]
+modId = "eco_stack_manager"
+version = "${file.jarVersion}"
+displayName = "Eco Stack Manager"
+displayURL = "https://www.curseforge.com/minecraft/mc-mods/eco-stack-manager"
+logoFile = "logo.png"
+credits = ""
+authors = "Markus Bordihn"
+description = '''Eco Stack Manager helps optimize Minecraft servers by managing and cleaning up item stacks, XP orbs and user inventories.'''
+
+[[dependencies.eco_stack_manager]]
+modId = "forge"
+mandatory = true
+versionRange = "[40,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.eco_stack_manager]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.18.2,1.19)"
+ordering = "NONE"
+side = "BOTH"
