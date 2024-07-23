@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -184,7 +185,7 @@ public class ItemEntityManager {
 
     // All items have the entity minecraft.item, so we are using the translation key
     // to better distinguish the different types of items and minecraft.item as backup.
-    String itemName = Registry.ITEM.getKey(itemEntity.getItem().getItem()).toString();
+    String itemName = BuiltInRegistries.ITEM.getKey(itemEntity.getItem().getItem()).toString();
     if (itemName.isEmpty()) {
       return null;
     }
