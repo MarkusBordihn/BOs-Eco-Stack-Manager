@@ -26,10 +26,19 @@ public class Constants {
   public static final String MOD_COMMAND = "eco_stack_manager";
   public static final String MOD_ID = "eco_stack_manager";
   public static final String MOD_NAME = "Eco Stack Manager";
-  public static final String LOG_NAME = "[" + MOD_NAME + "]";
-  public static final String LOG_ICON = "\uD83C\uDF0D";
+  public static final String LOG_ICON = "\uD83C\uDF10";
+  public static final String LOG_NAME = MOD_NAME;
   public static final String LOG_REGISTER_PREFIX = LOG_ICON + " Register " + MOD_NAME + " ";
+  public static final String MOD_CREATE_ID = "create";
+  public static final String MOD_CREATE_NAME = "Create";
+  public static final String MOD_CLUMPS_ID = "clumps";
+  public static final String MOD_CLUMPS_NAME = "Clumps";
+  public static final String MOD_GET_IT_TOGETHER_DROPS_ID = "getittogetherdrops";
+  public static final String MOD_GET_IT_TOGETHER_DROPS_NAME = "Get It Together, Drops!";
   public static File GAME_DIR;
+  public static boolean MOD_CREATE_LOADED = false;
+  public static boolean MOD_CLUMPS_LOADED = false;
+  public static boolean MOD_GET_IT_TOGETHER_DROPS_LOADED = false;
 
   private Constants() {}
 }

@@ -19,8 +19,12 @@
 
 package de.markusbordihn.ecostackmanager;
 
+import de.markusbordihn.ecostackmanager.commands.manager.CommandManager;
+import de.markusbordihn.ecostackmanager.debug.DebugManager;
 import de.markusbordihn.ecostackmanager.entity.EntityWorldEvents;
+import de.markusbordihn.ecostackmanager.mods.AdditionalModsMessages;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.loader.impl.FabricLoaderImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,7 +41,24 @@ public class EcoStackManager implements ModInitializer {
     Constants.GAME_DIR = fabricLoader.getGameDir().toFile();
     log.info("Initializing {} (Fabric) with {} ...", Constants.MOD_NAME, Constants.GAME_DIR);
 
+    log.info("{} Debug Manager ...", Constants.LOG_REGISTER_PREFIX);
+    if (System.getProperty("fabric.development") != null) {
+      DebugManager.setDevelopmentEnvironment(true);
+    }
+    DebugManager.checkForDebugLogging(Constants.LOG_NAME);
+
+    log.info("Detecting additional mods ...");
+    Constants.MOD_CLUMPS_LOADED = fabricLoader.isModLoaded(Constants.MOD_CLUMPS_ID);
+    Constants.MOD_CREATE_LOADED = fabricLoader.isModLoaded(Constants.MOD_CREATE_ID);
+    Constants.MOD_GET_IT_TOGETHER_DROPS_LOADED =
+        fabricLoader.isModLoaded(Constants.MOD_GET_IT_TOGETHER_DROPS_ID);
+    AdditionalModsMessages.checkForIncompatibility();
+
     log.info("{} Entity events ...", Constants.LOG_REGISTER_PREFIX);
     EntityWorldEvents.register();
+
+    log.info("{} Commands ...", Constants.LOG_REGISTER_PREFIX);
+    CommandRegistrationCallback.EVENT.register(
+        (dispatcher, dedicated) -> CommandManager.registerCommands(dispatcher));
   }
 }

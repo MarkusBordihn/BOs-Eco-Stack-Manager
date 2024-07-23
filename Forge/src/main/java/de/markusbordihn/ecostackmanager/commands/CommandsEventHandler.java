@@ -17,15 +17,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.ecostackmanager.config;
+package de.markusbordihn.ecostackmanager.commands;
 
-public class EcoStackManagerConfig {
+import de.markusbordihn.ecostackmanager.Constants;
+import de.markusbordihn.ecostackmanager.commands.manager.CommandManager;
+import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-  public static int EXPERIENCE_ORB_COLLECT_RADIUS = 4;
-  public static int ITEM_ENTITY_COLLECT_RADIUS = 3;
-  public static int ITEM_ENTITY_MAX_NUMBER_OF_ITEMS_PER_WORLD = 128;
-  public static int ITEM_ENTITY_MAX_NUMBER_OF_ITEMS_PER_TYPE = 32;
-  public static int ITEM_ENTITY_VERIFICATION_CYCLE = 64;
+@SuppressWarnings("unused")
+@EventBusSubscriber
+public class CommandsEventHandler {
 
-  private EcoStackManagerConfig() {}
+  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
+
+  protected CommandsEventHandler() {}
+
+  @SubscribeEvent
+  public static void handleRegisterCommandsEvent(RegisterCommandsEvent event) {
+    log.info("{} Commands ...", Constants.LOG_REGISTER_PREFIX);
+    CommandManager.registerCommands(event.getDispatcher());
+  }
 }

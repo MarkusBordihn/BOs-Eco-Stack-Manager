@@ -17,15 +17,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.ecostackmanager.config;
+package de.markusbordihn.ecostackmanager.commands.manager;
 
-public class EcoStackManagerConfig {
+import com.mojang.brigadier.CommandDispatcher;
+import de.markusbordihn.ecostackmanager.Constants;
+import de.markusbordihn.ecostackmanager.server.commands.DebugCommand;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-  public static int EXPERIENCE_ORB_COLLECT_RADIUS = 4;
-  public static int ITEM_ENTITY_COLLECT_RADIUS = 3;
-  public static int ITEM_ENTITY_MAX_NUMBER_OF_ITEMS_PER_WORLD = 128;
-  public static int ITEM_ENTITY_MAX_NUMBER_OF_ITEMS_PER_TYPE = 32;
-  public static int ITEM_ENTITY_VERIFICATION_CYCLE = 64;
+public class CommandManager {
 
-  private EcoStackManagerConfig() {}
+  protected static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
+
+  private CommandManager() {}
+
+  public static void registerCommands(CommandDispatcher<CommandSourceStack> commandDispatcher) {
+    log.info(
+        "{} /{} commands for {} ...",
+        Constants.LOG_REGISTER_PREFIX,
+        Constants.MOD_COMMAND,
+        Constants.MOD_NAME);
+    commandDispatcher.register(
+        Commands.literal(Constants.MOD_COMMAND).then(DebugCommand.register()));
+  }
 }
