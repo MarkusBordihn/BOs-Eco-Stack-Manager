@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[48,)"
+loaderVersion = "[0,)"
 license = "MIT"
 issueTrackerURL = "https://github.com/MarkusBordihn/BOs-Eco-Stack-Manager/issues"
 
@@ -16,13 +16,13 @@ description = '''Eco Stack Manager helps optimize Minecraft servers by managing 
 [[dependencies.eco_stack_manager]]
 modId = "forge"
 mandatory = true
-versionRange = "[48,)"
+versionRange = "[0,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.eco_stack_manager]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.20.2,1.21)"
+versionRange = "[1.20.4,1.21)"
 ordering = "NONE"
 side = "BOTH"
