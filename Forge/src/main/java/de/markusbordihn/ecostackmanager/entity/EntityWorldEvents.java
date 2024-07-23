@@ -22,8 +22,8 @@ package de.markusbordihn.ecostackmanager.entity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.EntityLeaveWorldEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -35,8 +35,8 @@ public class EntityWorldEvents {
   private EntityWorldEvents() {}
 
   @SubscribeEvent(priority = EventPriority.HIGH)
-  public static void handleEntityJoinWorldEvent(EntityJoinWorldEvent event) {
-    if (event.isCanceled() || !(event.getWorld() instanceof ServerLevel serverLevel)) {
+  public static void handleEntityJoinWorldEvent(EntityJoinLevelEvent event) {
+    if (event.isCanceled() || !(event.getLevel() instanceof ServerLevel serverLevel)) {
       return;
     }
 
@@ -54,8 +54,8 @@ public class EntityWorldEvents {
   }
 
   @SubscribeEvent(priority = EventPriority.HIGH)
-  public static void handleEntityLeaveWorldEvent(EntityLeaveWorldEvent event) {
-    if (event.isCanceled() || !(event.getWorld() instanceof ServerLevel serverLevel)) {
+  public static void handleEntityLeaveWorldEvent(EntityLeaveLevelEvent event) {
+    if (event.isCanceled() || !(event.getLevel() instanceof ServerLevel serverLevel)) {
       return;
     }
 
