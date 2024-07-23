@@ -19,6 +19,7 @@
 
 package de.markusbordihn.ecostackmanager.entity;
 
+import de.markusbordihn.ecostackmanager.Constants;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -35,17 +36,19 @@ public class EntityWorldEvents {
   }
 
   public static void handleEntityJoinWorldEvent(Entity entity, ServerLevel serverLevel) {
-    if (entity instanceof ExperienceOrb experienceOrb) {
+    if (entity instanceof ExperienceOrb experienceOrb && !Constants.MOD_CLUMPS_LOADED) {
       ExperienceOrbManager.handleExperienceOrbJoinWorldEvent(experienceOrb, serverLevel);
-    } else if (entity instanceof ItemEntity itemEntity) {
+    } else if (entity instanceof ItemEntity itemEntity
+        && !Constants.MOD_GET_IT_TOGETHER_DROPS_LOADED) {
       ItemEntityManager.handleItemJoinWorldEvent(itemEntity, serverLevel);
     }
   }
 
   public static void handleEntityLeaveWorldEvent(Entity entity, ServerLevel serverLevel) {
-    if (entity instanceof ExperienceOrb experienceOrb) {
+    if (entity instanceof ExperienceOrb experienceOrb && !Constants.MOD_CLUMPS_LOADED) {
       ExperienceOrbManager.handleExperienceOrbLeaveWorldEvent(experienceOrb, serverLevel);
-    } else if (entity instanceof ItemEntity itemEntity) {
+    } else if (entity instanceof ItemEntity itemEntity
+        && !Constants.MOD_GET_IT_TOGETHER_DROPS_LOADED) {
       ItemEntityManager.handleItemLeaveWorldEvent(itemEntity, serverLevel);
     }
   }

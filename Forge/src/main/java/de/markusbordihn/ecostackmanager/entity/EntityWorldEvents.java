@@ -19,6 +19,7 @@
 
 package de.markusbordihn.ecostackmanager.entity;
 
+import de.markusbordihn.ecostackmanager.Constants;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -40,12 +41,12 @@ public class EntityWorldEvents {
       return;
     }
 
-    if (event.getEntity() instanceof ExperienceOrb experienceOrb) {
+    if (event.getEntity() instanceof ExperienceOrb experienceOrb && !Constants.MOD_CLUMPS_LOADED) {
       if (ExperienceOrbManager.handleExperienceOrbJoinWorldEvent(experienceOrb, serverLevel)
           && event.isCancelable()) {
         event.setCanceled(true);
       }
-    } else if (event.getEntity() instanceof ItemEntity itemEntity) {
+    } else if (event.getEntity() instanceof ItemEntity itemEntity && !Constants.MOD_CLUMPS_LOADED) {
       if (ItemEntityManager.handleItemJoinWorldEvent(itemEntity, serverLevel)
           && event.isCancelable()) {
         event.setCanceled(true);
@@ -59,9 +60,9 @@ public class EntityWorldEvents {
       return;
     }
 
-    if (event.getEntity() instanceof ExperienceOrb experienceOrb) {
+    if (event.getEntity() instanceof ExperienceOrb experienceOrb && !Constants.MOD_CLUMPS_LOADED) {
       ExperienceOrbManager.handleExperienceOrbLeaveWorldEvent(experienceOrb, serverLevel);
-    } else if (event.getEntity() instanceof ItemEntity itemEntity) {
+    } else if (event.getEntity() instanceof ItemEntity itemEntity && !Constants.MOD_CLUMPS_LOADED) {
       ItemEntityManager.handleItemLeaveWorldEvent(itemEntity, serverLevel);
     }
   }

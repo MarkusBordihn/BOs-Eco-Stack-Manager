@@ -22,12 +22,14 @@ package de.markusbordihn.ecostackmanager.entity;
 import de.markusbordihn.ecostackmanager.Constants;
 import de.markusbordihn.ecostackmanager.config.EcoStackManagerConfig;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import org.apache.logging.log4j.LogManager;
@@ -39,6 +41,8 @@ public class ItemEntityManager {
 
   private static final Map<String, Set<ItemEntity>> itemTypeEntityMap = new ConcurrentHashMap<>();
   private static final Map<String, Set<ItemEntity>> itemWorldEntityMap = new ConcurrentHashMap<>();
+
+  private static int itemEntityVerificationCounter = 0;
 
   private ItemEntityManager() {}
 
@@ -110,7 +114,8 @@ public class ItemEntityManager {
 
     // Optimized items per world regardless of type if they're exceeding maxNumberOfItems limit.
     int numberOfItemWorldEntities = itemWorldEntities.size();
-    if (numberOfItemWorldEntities > EcoStackManagerConfig.ITEM_ENTITY_MAX_NUMBER_OF_ITEMS) {
+    if (numberOfItemWorldEntities
+        > EcoStackManagerConfig.ITEM_ENTITY_MAX_NUMBER_OF_ITEMS_PER_WORLD) {
       ItemEntity firsItemWorldEntity = itemWorldEntities.iterator().next();
       log.debug(
           "[Item World Limit {}] Removing first item {}",
@@ -138,6 +143,12 @@ public class ItemEntityManager {
       itemWorldEntities.remove(firstItemEntity);
     }
 
+    // Verify item entities after a specific number of tracked items.
+    if (itemEntityVerificationCounter++ >= EcoStackManagerConfig.ITEM_ENTITY_VERIFICATION_CYCLE) {
+      verifyItemEntities();
+      itemEntityVerificationCounter = 0;
+    }
+
     return false;
   }
 
@@ -160,20 +171,12 @@ public class ItemEntityManager {
     // Remove item from world type map.
     Set<ItemEntity> itemTypeEntities = itemTypeEntityMap.get('[' + levelName + ']' + itemName);
     if (itemTypeEntities != null) {
-      itemTypeEntities.remove(itemEntity);
       if (log.isDebugEnabled()) {
-        log.debug(
-            "[Item leaved {}] {} {}.",
-            levelName,
-            itemName,
-            itemEntity.getDisplayName().getString());
+        log.debug("[Item leaved {}] {} {}.", levelName, itemName, itemEntity);
       }
+      itemTypeEntities.remove(itemEntity);
     } else {
-      log.warn(
-          "Item {} {} in {} was not tracked by item entity manager!",
-          itemName,
-          itemEntity.getDisplayName().getString(),
-          levelName);
+      log.warn("[Item leaved {}] {} {} was not tracked!", levelName, itemName, itemEntity);
     }
   }
 
@@ -197,10 +200,48 @@ public class ItemEntityManager {
 
     // Ignore specific entities from mods which implements their own spawn handling, logic or
     // using pseudo mobs for interactive blocks.
-    if (itemName.startsWith("create")) {
+    if (Constants.MOD_CREATE_LOADED && itemName.startsWith("create")) {
       return null;
     }
 
     return itemName;
+  }
+
+  public static void verifyItemEntities() {
+    log.debug("[Verification] Start verification of tracked item entities ...");
+    int removedItemsType = 0;
+    int removedItemsWorld = 0;
+
+    // Verify Entities in overall overview
+    for (Set<ItemEntity> entities : itemTypeEntityMap.values()) {
+      Iterator<ItemEntity> entityIterator = entities.iterator();
+      while (entityIterator.hasNext()) {
+        Entity entity = entityIterator.next();
+        if (entity != null && entity.isRemoved()) {
+          entityIterator.remove();
+          removedItemsType++;
+        }
+      }
+    }
+
+    // Verify Entities from world specific overview
+    for (Set<ItemEntity> entities : itemWorldEntityMap.values()) {
+      Iterator<ItemEntity> entityIterator = entities.iterator();
+      while (entityIterator.hasNext()) {
+        Entity entity = entityIterator.next();
+        if (entity != null && entity.isRemoved()) {
+          entityIterator.remove();
+          removedItemsWorld++;
+        }
+      }
+    }
+
+    if (removedItemsType > 0 || removedItemsWorld > 0) {
+      log.debug(
+          "[Verification] Removed {} items ({} items per type / {} items per world)",
+          removedItemsType + removedItemsWorld,
+          removedItemsType,
+          removedItemsWorld);
+    }
   }
 }
