@@ -22,7 +22,7 @@ package de.markusbordihn.ecostackmanager.commands;
 import de.markusbordihn.ecostackmanager.Constants;
 import de.markusbordihn.ecostackmanager.commands.manager.CommandManager;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod.EventBusSubscriber;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

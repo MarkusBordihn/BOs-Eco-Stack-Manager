@@ -24,10 +24,7 @@ import cpw.mods.modlauncher.api.IEnvironment;
 import de.markusbordihn.ecostackmanager.debug.DebugManager;
 import de.markusbordihn.ecostackmanager.mods.AdditionalModsMessages;
 import java.util.Optional;
-import net.neoforged.fml.IExtensionPoint;
-import net.neoforged.fml.IExtensionPoint.DisplayTest;
 import net.neoforged.fml.ModList;
-import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLPaths;
 import org.apache.logging.log4j.LogManager;
@@ -57,14 +54,5 @@ public class EcoStackManager {
     Constants.MOD_GET_IT_TOGETHER_DROPS_LOADED =
         ModList.get().isLoaded(Constants.MOD_GET_IT_TOGETHER_DROPS_ID);
     AdditionalModsMessages.checkForIncompatibility();
-
-    // Make sure the mod being absent on the other network side does not cause the client to display
-    // the server as incompatible
-    ModLoadingContext.get()
-        .registerExtensionPoint(
-            IExtensionPoint.DisplayTest.class,
-            () ->
-                new IExtensionPoint.DisplayTest(
-                    () -> DisplayTest.IGNORESERVERONLY, (a, b) -> true));
   }
 }
