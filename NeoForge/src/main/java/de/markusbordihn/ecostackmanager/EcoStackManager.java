@@ -24,12 +24,12 @@ import cpw.mods.modlauncher.api.IEnvironment;
 import de.markusbordihn.ecostackmanager.debug.DebugManager;
 import de.markusbordihn.ecostackmanager.mods.AdditionalModsMessages;
 import java.util.Optional;
-import net.minecraftforge.fml.IExtensionPoint;
-import net.minecraftforge.fml.IExtensionPoint.DisplayTest;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.loading.FMLPaths;
+import net.neoforged.fml.IExtensionPoint;
+import net.neoforged.fml.IExtensionPoint.DisplayTest;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLPaths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -21,4 +21,4 @@ pluginManagement {
 }
 
 rootProject.name = 'Eco Stack Manager'
-include("Common", "Fabric", "Forge")
+include("Common", "Fabric", "Forge", "NeoForge")
