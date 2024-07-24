@@ -43,7 +43,7 @@ public class DebugCommand extends Command {
                             context.getSource(), BoolArgumentType.getBool(context, "enable"))));
   }
 
-  public static int setDebug(CommandSourceStack context, boolean enable) {
+  public static int setDebug(final CommandSourceStack context, final boolean enable) {
     if (enable) {
       sendSuccessMessage(
           context,
