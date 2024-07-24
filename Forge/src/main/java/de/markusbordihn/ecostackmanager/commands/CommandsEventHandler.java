@@ -36,7 +36,7 @@ public class CommandsEventHandler {
   protected CommandsEventHandler() {}
 
   @SubscribeEvent
-  public static void handleRegisterCommandsEvent(RegisterCommandsEvent event) {
+  public static void handleRegisterCommandsEvent(final RegisterCommandsEvent event) {
     log.info("{} Commands ...", Constants.LOG_REGISTER_PREFIX);
     CommandManager.registerCommands(event.getDispatcher(), event.getBuildContext());
   }
