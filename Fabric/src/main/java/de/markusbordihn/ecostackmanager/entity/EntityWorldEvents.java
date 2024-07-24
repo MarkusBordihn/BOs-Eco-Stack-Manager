@@ -35,7 +35,8 @@ public class EntityWorldEvents {
     ServerEntityEvents.ENTITY_UNLOAD.register(EntityWorldEvents::handleEntityLeaveWorldEvent);
   }
 
-  public static void handleEntityJoinWorldEvent(Entity entity, ServerLevel serverLevel) {
+  public static void handleEntityJoinWorldEvent(
+      final Entity entity, final ServerLevel serverLevel) {
     if (entity instanceof ExperienceOrb experienceOrb && !Constants.MOD_CLUMPS_LOADED) {
       ExperienceOrbManager.handleExperienceOrbJoinWorldEvent(experienceOrb, serverLevel);
     } else if (entity instanceof ItemEntity itemEntity
@@ -44,7 +45,8 @@ public class EntityWorldEvents {
     }
   }
 
-  public static void handleEntityLeaveWorldEvent(Entity entity, ServerLevel serverLevel) {
+  public static void handleEntityLeaveWorldEvent(
+      final Entity entity, final ServerLevel serverLevel) {
     if (entity instanceof ExperienceOrb experienceOrb && !Constants.MOD_CLUMPS_LOADED) {
       ExperienceOrbManager.handleExperienceOrbLeaveWorldEvent(experienceOrb, serverLevel);
     } else if (entity instanceof ItemEntity itemEntity
