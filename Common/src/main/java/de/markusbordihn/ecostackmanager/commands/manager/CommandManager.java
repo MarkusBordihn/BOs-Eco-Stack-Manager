@@ -35,7 +35,8 @@ public class CommandManager {
   private CommandManager() {}
 
   public static void registerCommands(
-      CommandDispatcher<CommandSourceStack> commandDispatcher, CommandBuildContext context) {
+      final CommandDispatcher<CommandSourceStack> commandDispatcher,
+      final CommandBuildContext context) {
     log.info(
         "{} /{} commands for {} ...",
         Constants.LOG_REGISTER_PREFIX,
