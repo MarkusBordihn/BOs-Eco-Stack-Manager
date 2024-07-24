@@ -35,7 +35,7 @@ public final class DebugManager {
 
   private DebugManager() {}
 
-  public static void setLogLevel(Logger logger, Level logLevel) {
+  public static void setLogLevel(final Logger logger, final Level logLevel) {
     if (logLevel == null || logLevel == logger.getLevel()) {
       return;
     }
@@ -62,11 +62,11 @@ public final class DebugManager {
     context.updateLoggers();
   }
 
-  public static void enableDebugLevel(boolean enable) {
+  public static void enableDebugLevel(final boolean enable) {
     enableDebugLevel(Constants.LOG_NAME, enable);
   }
 
-  public static void enableDebugLevel(String loggerName, boolean enable) {
+  public static void enableDebugLevel(final String loggerName, final boolean enable) {
     Logger logger = LogManager.getLogger(loggerName);
     if (enable) {
       DebugManager.setLogLevel(logger, Level.DEBUG);
@@ -75,17 +75,17 @@ public final class DebugManager {
     }
   }
 
-  public static Level getLogLevel(String loggerName) {
+  public static Level getLogLevel(final String loggerName) {
     Logger logger = LogManager.getLogger(loggerName);
     return logger.getLevel();
   }
 
-  public static boolean isDebugLevel(String loggerName) {
+  public static boolean isDebugLevel(final String loggerName) {
     Level level = getLogLevel(loggerName);
     return level == Level.DEBUG || level == Level.TRACE || level == Level.ALL;
   }
 
-  public static void checkForDebugLogging(String loggerName) {
+  public static void checkForDebugLogging(final String loggerName) {
     if (isDebugLevel(loggerName)) {
       Logger logger = LogManager.getLogger(loggerName);
       String logLevelName = logger.getLevel().name();
