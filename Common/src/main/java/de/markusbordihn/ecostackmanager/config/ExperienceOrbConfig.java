@@ -19,13 +19,32 @@
 
 package de.markusbordihn.ecostackmanager.config;
 
-public class EcoStackManagerConfig {
+import java.io.File;
+import java.util.Properties;
 
-  public static int EXPERIENCE_ORB_COLLECT_RADIUS = 4;
-  public static int ITEM_ENTITY_COLLECT_RADIUS = 3;
-  public static int ITEM_ENTITY_MAX_NUMBER_OF_ITEMS_PER_WORLD = 128;
-  public static int ITEM_ENTITY_MAX_NUMBER_OF_ITEMS_PER_TYPE = 32;
-  public static int ITEM_ENTITY_VERIFICATION_CYCLE = 64;
+public class ExperienceOrbConfig extends Config {
+  public static final String CONFIG_FILE_NAME = "experience_orb.cfg";
+  public static final String CONFIG_FILE_HEADER = "Experience Orb Configuration";
 
-  private EcoStackManagerConfig() {}
+  public static int collectRadius = 4;
+  public static boolean movePositionToLastDrop = false;
+
+  public static void registerConfig() {
+    registerConfigFile(CONFIG_FILE_NAME, CONFIG_FILE_HEADER);
+    parseConfigFile();
+  }
+
+  public static void parseConfigFile() {
+    File configFile = getConfigFile(CONFIG_FILE_NAME);
+    Properties properties = readConfigFile(configFile);
+    Properties unmodifiedProperties = (Properties) properties.clone();
+
+    // Config entries
+    collectRadius = parseConfigValue(properties, "collect_radius", collectRadius);
+    movePositionToLastDrop =
+        parseConfigValue(properties, "move_position_to_last_drop", movePositionToLastDrop);
+
+    // Update config file if needed
+    updateConfigFileIfChanged(configFile, CONFIG_FILE_HEADER, properties, unmodifiedProperties);
+  }
 }

@@ -36,7 +36,7 @@ public class EntityWorldEvents {
   private EntityWorldEvents() {}
 
   @SubscribeEvent(priority = EventPriority.HIGH)
-  public static void handleEntityJoinWorldEvent(EntityJoinWorldEvent event) {
+  public static void handleEntityJoinWorldEvent(final EntityJoinWorldEvent event) {
     if (event.isCanceled() || !(event.getWorld() instanceof ServerLevel serverLevel)) {
       return;
     }
@@ -55,7 +55,7 @@ public class EntityWorldEvents {
   }
 
   @SubscribeEvent(priority = EventPriority.HIGH)
-  public static void handleEntityLeaveWorldEvent(EntityLeaveWorldEvent event) {
+  public static void handleEntityLeaveWorldEvent(final EntityLeaveWorldEvent event) {
     if (event.isCanceled() || !(event.getWorld() instanceof ServerLevel serverLevel)) {
       return;
     }

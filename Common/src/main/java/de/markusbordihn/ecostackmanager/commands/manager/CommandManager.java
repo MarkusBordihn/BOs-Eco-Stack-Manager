@@ -33,7 +33,8 @@ public class CommandManager {
 
   private CommandManager() {}
 
-  public static void registerCommands(CommandDispatcher<CommandSourceStack> commandDispatcher) {
+  public static void registerCommands(
+      final CommandDispatcher<CommandSourceStack> commandDispatcher) {
     log.info(
         "{} /{} commands for {} ...",
         Constants.LOG_REGISTER_PREFIX,
