@@ -23,6 +23,6 @@ side = "BOTH"
 [[dependencies.eco_stack_manager]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21,1.22)"
+versionRange = "[1.21.1,1.22)"
 ordering = "NONE"
 side = "BOTH"
