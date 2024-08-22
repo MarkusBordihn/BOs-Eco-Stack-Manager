@@ -38,6 +38,11 @@ loom {
       ideConfigGenerated(true)
       runDir("run")
     }
+    gameTest {
+      server()
+      name "Game Test"
+      vmArg "-Dfabric-api.gametest"
+    }
   }
 }
 
@@ -78,7 +83,6 @@ curseforge {
     mainArtifact(remapJar) {
       relations {
         requiredDependency 'fabric-api'
-        optionalDependency 'tooltipfix'
       }
     }
   }
@@ -99,6 +103,5 @@ modrinth {
   loaders = ["fabric", "quilt"]
   dependencies {
     required.project "fabric-api"
-    optional.project "tooltipfix"
   }
 }
