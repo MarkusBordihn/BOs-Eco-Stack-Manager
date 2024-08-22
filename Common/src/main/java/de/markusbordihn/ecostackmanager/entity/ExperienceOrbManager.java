@@ -21,7 +21,7 @@ package de.markusbordihn.ecostackmanager.entity;
 
 import de.markusbordihn.ecostackmanager.Constants;
 import de.markusbordihn.ecostackmanager.config.ExperienceOrbConfig;
-import java.lang.reflect.Field;
+import de.markusbordihn.ecostackmanager.utils.ReflectionUtils;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -39,6 +39,8 @@ public class ExperienceOrbManager {
   private static final Map<String, Set<ExperienceOrb>> levelExperienceOrbMap =
       new ConcurrentHashMap<>();
 
+  private static boolean raiseExpectationErrorOnce = true;
+
   private ExperienceOrbManager() {}
 
   public static boolean handleExperienceOrbJoinWorldEvent(
@@ -53,7 +55,7 @@ public class ExperienceOrbManager {
     String levelName = serverLevel.dimension().location().toString();
     if (experienceOrb.getValue() <= 0) {
       log.debug(
-          "Remove Experience Orb {} with {} xp from {}.",
+          "[Removed Ghost Experience Orb] {} with {} xp from {}.",
           experienceOrb,
           experienceOrb.getValue(),
           levelName);
@@ -66,7 +68,13 @@ public class ExperienceOrbManager {
           experienceOrb.getValue(),
           levelName);
     }
-    return handleExperienceOrbMerge(experienceOrb, levelName);
+
+    // Handle experience orb merge, if radius is set.
+    if (ExperienceOrbConfig.collectRadius > 0) {
+      return handleExperienceOrbMerge(experienceOrb, levelName);
+    }
+
+    return false;
   }
 
   public static void handleExperienceOrbLeaveWorldEvent(
@@ -156,29 +164,36 @@ public class ExperienceOrbManager {
         newExperienceValue);
 
     // Merge experience orbs values and check if it was successful.
-    try {
-      Field experienceValue = existingExperienceOrb.getClass().getDeclaredField("value");
-      experienceValue.setAccessible(true);
-      experienceValue.setInt(existingExperienceOrb, newExperienceValue);
-    } catch (NoSuchFieldException | IllegalAccessException e) {
-      log.error(
-          "Unable to merge experience orbs {} with {} due to {}",
-          experienceOrb,
-          existingExperienceOrb,
-          e);
-      log.info("Will move experience orb {} closer to {}.", experienceOrb, existingExperienceOrb);
-      return;
-    }
+    if (ReflectionUtils.changeIntValueField(
+        existingExperienceOrb,
+        new String[] {"value", "amount", "field_6159", "f_20770_"},
+        newExperienceValue)) {
 
-    // Discard experience orb if merge was successful, before moving the existing experience orb.
-    if (!experienceOrb.isRemoved()) {
-      experienceOrb.discard();
-    }
+      // Discard experience orb if merge was successful, before moving the existing experience orb.
+      if (!experienceOrb.isRemoved()) {
+        experienceOrb.discard();
+      }
 
-    // Move existing experience orb to the new location, but adjust the z position.
-    if (ExperienceOrbConfig.movePositionToLastDrop) {
-      existingExperienceOrb.moveTo(
-          x, existingExperienceOrb.getY() + ((y - existingExperienceOrb.getY()) / 4), z);
+      // Move existing experience orb to the new location, but adjust the z position.
+      if (ExperienceOrbConfig.movePositionToLastDrop) {
+        existingExperienceOrb.moveTo(
+            x, existingExperienceOrb.getY() + ((y - existingExperienceOrb.getY()) / 4), z);
+      }
+
+    } else {
+      // Move experience orb closer to existing experience orb, if merge was not successful.
+      if (raiseExpectationErrorOnce) {
+        log.error(
+            "Reflection failed: Unable to merge experience orbs {} with {} and {} xp.",
+            experienceOrb,
+            existingExperienceOrb,
+            newExperienceValue);
+        raiseExpectationErrorOnce = false;
+      }
+      experienceOrb.moveTo(
+          existingExperienceOrb.getBlockX(),
+          existingExperienceOrb.getBlockY(),
+          existingExperienceOrb.getBlockZ());
     }
   }
 }

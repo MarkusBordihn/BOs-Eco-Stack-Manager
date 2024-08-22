@@ -58,6 +58,23 @@ minecraft {
       property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
     }
 
+    gameTestServer {
+      workingDirectory project.file('run/gametestserver')
+      property 'forge.logging.markers', 'REGISTRIES'
+      property 'forge.logging.console.level', 'debug'
+      property 'forge.enabledGameTestNamespaces', "${project.mod_id}"
+
+      mods {
+        "${project.mod_id}" {
+          source sourceSets.main
+        }
+      }
+
+      // Mixin Support
+      property 'mixin.env.remapRefMap', 'true'
+      property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+    }
+
     data {
       workingDirectory project.file('run/data')
       property 'forge.logging.markers', 'REGISTRIES'
