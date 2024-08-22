@@ -21,6 +21,7 @@ package de.markusbordihn.ecostackmanager;
 
 import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.IEnvironment;
+import de.markusbordihn.ecostackmanager.config.Config;
 import de.markusbordihn.ecostackmanager.debug.DebugManager;
 import de.markusbordihn.ecostackmanager.mods.AdditionalModsMessages;
 import java.util.Optional;
@@ -44,7 +45,7 @@ public class EcoStackManager {
     log.info("Initializing {} (Forge) with {} ...", Constants.MOD_NAME, Constants.GAME_DIR);
 
     log.info("{} Configuration ...", Constants.LOG_REGISTER_PREFIX);
-    de.markusbordihn.ecostackmanager.config.Config.register();
+    Config.register();
 
     log.info("{} Debug Manager ...", Constants.LOG_REGISTER_PREFIX);
     Optional<String> version =

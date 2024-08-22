@@ -5,6 +5,14 @@
 This change log includes the summarized changes.
 For the full changelog, please go to the [GitHub History][history] instead.
 
+### 1.3.0
+
+- Fixed #3 by trying multiple field names to adjust experience orb clustering.
+- Fixed #2 by disable item optimization with using 0 for `maxNumberOfItemsPerWorld` and/or
+  `maxNumberOfItemsPerType`.
+- Added automated gametest for better testing and quality assurance.
+- Updated wiki to include more detailed information about the configuration options.
+ 
 ### 1.2.0
 
 - Added basic configuration files under /config/eco_stack_manager to fine-tune settings.
