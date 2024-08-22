@@ -20,6 +20,9 @@
     ],
     "client": [
       "de.markusbordihn.ecostackmanager.EcoStackManagerClient"
+    ],
+    "fabric-gametest": [
+      "de.markusbordihn.ecostackmanager.gametest.SmokeTest"
     ]
   },
   "mixins": [],
