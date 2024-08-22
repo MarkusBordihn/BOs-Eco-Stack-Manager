@@ -127,7 +127,8 @@ public class ItemEntityManager {
 
     // Optimized items per world regardless of type if they're exceeding maxNumberOfItems limit.
     int numberOfItemWorldEntities = itemWorldEntities.size();
-    if (numberOfItemWorldEntities > ItemEntityConfig.maxNumberOfItemsPerWorld) {
+    if (ItemEntityConfig.maxNumberOfItemsPerWorld > 0
+        && numberOfItemWorldEntities > ItemEntityConfig.maxNumberOfItemsPerWorld) {
       ItemEntity firsItemWorldEntity = itemWorldEntities.iterator().next();
       log.debug(
           "[Item Entity World Limit {}] Removing first item {}",
@@ -145,12 +146,13 @@ public class ItemEntityManager {
     itemTypeEntities.add(itemEntity);
 
     // Optimized items per type and world if exceeding numberOfItemsPerType limit.
-    int numberOfItemEntities = itemTypeEntities.size();
-    if (numberOfItemEntities > ItemEntityConfig.maxNumberOfItemsPerType) {
+    int numberOfItemTypeEntities = itemTypeEntities.size();
+    if (ItemEntityConfig.maxNumberOfItemsPerType > 0
+        && numberOfItemTypeEntities > ItemEntityConfig.maxNumberOfItemsPerType) {
       ItemEntity firstItemEntity = itemTypeEntities.iterator().next();
       log.debug(
           "[Item Entity Type Limit {}] Removing first item {}",
-          numberOfItemEntities,
+          numberOfItemTypeEntities,
           firstItemEntity);
       firstItemEntity.discard();
       itemTypeEntities.remove(firstItemEntity);
@@ -223,10 +225,24 @@ public class ItemEntityManager {
 
   private static void verifyItemEntities() {
     log.debug("[Verification] Start verification of tracked item entities ...");
-    int removedItemsType = 0;
-    int removedItemsWorld = 0;
 
     // Verify Entities in overall overview
+    int removedItemsType = getRemovedItemEntities(itemTypeEntityMap);
+
+    // Verify Entities from world specific overview
+    int removedItemsWorld = getRemovedItemEntities(itemWorldEntityMap);
+
+    if (removedItemsType > 0 || removedItemsWorld > 0) {
+      log.debug(
+          "[Verification] Removed {} items ({} items per type / {} items per world)",
+          removedItemsType + removedItemsWorld,
+          removedItemsType,
+          removedItemsWorld);
+    }
+  }
+
+  private static int getRemovedItemEntities(Map<String, Set<ItemEntity>> itemTypeEntityMap) {
+    int removedItemsType = 0;
     for (Set<ItemEntity> entities : itemTypeEntityMap.values()) {
       Iterator<ItemEntity> entityIterator = entities.iterator();
       while (entityIterator.hasNext()) {
@@ -237,26 +253,7 @@ public class ItemEntityManager {
         }
       }
     }
-
-    // Verify Entities from world specific overview
-    for (Set<ItemEntity> entities : itemWorldEntityMap.values()) {
-      Iterator<ItemEntity> entityIterator = entities.iterator();
-      while (entityIterator.hasNext()) {
-        Entity entity = entityIterator.next();
-        if (entity != null && entity.isRemoved()) {
-          entityIterator.remove();
-          removedItemsWorld++;
-        }
-      }
-    }
-
-    if (removedItemsType > 0 || removedItemsWorld > 0) {
-      log.debug(
-          "[Verification] Removed {} items ({} items per type / {} items per world)",
-          removedItemsType + removedItemsWorld,
-          removedItemsType,
-          removedItemsWorld);
-    }
+    return removedItemsType;
   }
 
   private static boolean shouldMerge(
