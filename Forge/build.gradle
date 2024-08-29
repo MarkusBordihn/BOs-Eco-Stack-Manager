@@ -12,18 +12,11 @@ archivesBaseName = "${mod_id}-forge-${minecraft_version}"
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
-  // The mappings can be changed at any time, and must be in the following format.
-  // snapshot_YYYYMMDD   Snapshot are built nightly.
-  // stable_#            Stables are built at the discretion of the MCP team.
-  // Use non-default mappings at your own risk. they may not always work.
-  // Simply re-run your setup task after changing the mappings to update your workspace.
   mappings channel: 'official', version: "${project.minecraft_version}"
-  // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 
-  // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+  reobf = false
+  copyIdeResources = true
 
-  // Default run configurations.
-  // These can be tweaked, removed, or duplicated as needed.
   runs {
     client {
       workingDirectory project.file('run')
@@ -141,12 +134,6 @@ jar {
     ])
   }
 }
-
-// Example configuration to allow publishing using the maven-publish task
-// This is the preferred method to reobfuscate your jar file
-jar.finalizedBy('reobfJar')
-// However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
-//publish.dependsOn('reobfJar')
 
 publishing {
   publications {
