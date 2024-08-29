@@ -5,6 +5,10 @@
 This change log includes the summarized changes.
 For the full changelog, please go to the [GitHub History][history] instead.
 
+### 1.3.1
+
+- Improved Forge compatibility by making sure correct mappings are used.
+
 ### 1.3.0
 
 - Fixed #3 by trying multiple field names to adjust experience orb clustering.
