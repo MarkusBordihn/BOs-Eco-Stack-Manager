@@ -16,13 +16,13 @@ description = '''Eco Stack Manager helps optimize Minecraft servers by managing 
 [[dependencies.eco_stack_manager]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.3.0,)"
+versionRange = "[21.4.0,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.eco_stack_manager]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21.3,1.22)"
+versionRange = "[1.21.4,1.22)"
 ordering = "NONE"
 side = "BOTH"
