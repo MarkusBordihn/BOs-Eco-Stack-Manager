@@ -21,13 +21,11 @@ package de.markusbordihn.ecostackmanager.gametest;
 
 import de.markusbordihn.ecostackmanager.Constants;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 
 @SuppressWarnings("unused")
 public class SmokeTest {
 
-  @GameTest(template = "eco_stack_manager:gametest.3x3x3")
   public void testModRegistered(GameTestHelper helper) {
     GameTestHelpers.assertTrue(
         helper,

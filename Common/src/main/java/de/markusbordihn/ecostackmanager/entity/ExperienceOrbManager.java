@@ -164,9 +164,9 @@ public class ExperienceOrbManager {
         newExperienceValue);
 
     // Merge experience orbs values and check if it was successful.
-    if (ReflectionUtils.changeIntValueField(
+    if (ReflectionUtils.invokeIntMethod(
         existingExperienceOrb,
-        new String[] {"value", "amount", "field_6159", "f_20770_"},
+        new String[] {"setValue", "method_66666", "value"},
         newExperienceValue)) {
 
       // Discard experience orb if merge was successful, before moving the existing experience orb.
@@ -176,7 +176,7 @@ public class ExperienceOrbManager {
 
       // Move existing experience orb to the new location, but adjust the z position.
       if (ExperienceOrbConfig.movePositionToLastDrop) {
-        existingExperienceOrb.moveTo(
+        existingExperienceOrb.setPos(
             x, existingExperienceOrb.getY() + ((y - existingExperienceOrb.getY()) / 4), z);
       }
 
@@ -190,7 +190,7 @@ public class ExperienceOrbManager {
             newExperienceValue);
         raiseExpectationErrorOnce = false;
       }
-      experienceOrb.moveTo(
+      experienceOrb.setPos(
           existingExperienceOrb.getBlockX(),
           existingExperienceOrb.getBlockY(),
           existingExperienceOrb.getBlockZ());

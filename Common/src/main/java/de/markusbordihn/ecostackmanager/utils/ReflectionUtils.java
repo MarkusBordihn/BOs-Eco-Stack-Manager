@@ -20,6 +20,8 @@
 package de.markusbordihn.ecostackmanager.utils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class ReflectionUtils {
 
@@ -41,6 +43,26 @@ public class ReflectionUtils {
       field.setInt(object, value);
       return true;
     } catch (NoSuchFieldException | IllegalAccessException e) {
+      return false;
+    }
+  }
+
+  public static boolean invokeIntMethod(Object object, String[] methodNames, int value) {
+    for (String methodName : methodNames) {
+      if (invokeIntMethod(object, methodName, value)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public static boolean invokeIntMethod(Object object, String methodName, int value) {
+    try {
+      Method method = object.getClass().getDeclaredMethod(methodName, int.class);
+      method.setAccessible(true);
+      method.invoke(object, value);
+      return true;
+    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
       return false;
     }
   }
