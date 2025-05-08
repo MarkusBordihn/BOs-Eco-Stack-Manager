@@ -105,8 +105,17 @@ dependencies {
   compileOnly project(":Common")
 
   // Additional helpful Mods for development (runtime dependency)
-  // runtimeOnly "curse.maven:xaeros_minimap-263420:${project.xaeros_minimap_mod}"
-  // runtimeOnly "curse.maven:spark-361579:${project.spark_mod}"
+  if (project.hasProperty('forge_jei_mod') && project.forge_jei_mod) {
+    compileOnly fg.deobf("curse.maven:jei-238222:${project.forge_jei_mod}")
+    // runtimeOnly fg.deobf("curse.maven:jei-238222:${project.forge_jei_mod}")
+  }
+  if (project.hasProperty('forge_spark_mod') && project.forge_spark_mod) {
+    runtimeOnly fg.deobf("curse.maven:spark-361579:${project.forge_spark_mod}")
+  }
+  if (project.hasProperty('forge_xaeros_minimap_mod') && project.forge_xaeros_minimap_mod) {
+    runtimeOnly fg.deobf("curse.maven:xaeros_minimap-263420:${project.forge_xaeros_minimap_mod}")
+  }
+
 
   // Hack fix for now, force jopt-simple to be exactly 5.0.4 because Mojang ships that version, but some transitive dependencies request 6.0+
   implementation('net.sf.jopt-simple:jopt-simple:5.0.4') { version { strictly '5.0.4' } }
@@ -152,13 +161,7 @@ curseforge {
     releaseType = "${project.curseforge_release_type}"
     addGameVersion("${project.minecraft_version}")
     addGameVersion("Forge")
-    mainArtifact(jar) {
-      relations {
-        optionalDependency 'easy-npc-epic-fight'
-        optionalDependency 'armourers-workshop'
-        optionalDependency 'simple-quests-forge'
-      }
-    }
+    mainArtifact(jar)
   }
 }
 
@@ -172,15 +175,6 @@ modrinth {
   uploadFile = jar
   gameVersions = ["${project.minecraft_version}"]
   loaders = ["forge"]
-  dependencies {
-    optional.project "easy-npc-epic-fight"
-    optional.project "armourers-workshop"
-    optional.project "simple-quests"
-  }
-}
-
-tasks.withType(JavaCompile).configureEach {
-  options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
 // Merge the resources and classes into the same directory.

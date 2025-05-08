@@ -28,8 +28,8 @@ import java.util.Optional;
 import net.minecraftforge.fml.IExtensionPoint;
 import net.minecraftforge.fml.IExtensionPoint.DisplayTest;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,7 +40,7 @@ public class EcoStackManager {
 
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
 
-  public EcoStackManager() {
+  public EcoStackManager(FMLJavaModLoadingContext context) {
     Constants.GAME_DIR = FMLPaths.GAMEDIR.get().toFile();
     log.info("Initializing {} (Forge) with {} ...", Constants.MOD_NAME, Constants.GAME_DIR);
 
@@ -64,11 +64,8 @@ public class EcoStackManager {
 
     // Make sure the mod being absent on the other network side does not cause the client to display
     // the server as incompatible
-    ModLoadingContext.get()
-        .registerExtensionPoint(
-            IExtensionPoint.DisplayTest.class,
-            () ->
-                new IExtensionPoint.DisplayTest(
-                    () -> DisplayTest.IGNORESERVERONLY, (a, b) -> true));
+    context.registerExtensionPoint(
+        IExtensionPoint.DisplayTest.class,
+        () -> new IExtensionPoint.DisplayTest(() -> DisplayTest.IGNORESERVERONLY, (a, b) -> true));
   }
 }
