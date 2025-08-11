@@ -11,6 +11,7 @@ tasks.register('runAllGameTests') {
 subprojects {
 
   apply plugin: 'java'
+  apply plugin: 'idea'
 
   java.toolchain.languageVersion = JavaLanguageVersion.of(21)
   java.withSourcesJar()
@@ -26,17 +27,22 @@ subprojects {
     }
   }
 
+  idea {
+    module {
+      downloadSources = true
+      downloadJavadoc = true
+    }
+  }
+
   dependencies {
     configurations.configureEach {
-      resolutionStrategy.force 'com.github.oshi:oshi-core:6.4.10'
-      resolutionStrategy.force 'org.ow2.asm:asm-analysis:9.7'
-      resolutionStrategy.force 'org.ow2.asm:asm-util:9.7'
+      resolutionStrategy.force 'org.ow2.asm:asm-analysis:9.8'
+      resolutionStrategy.force 'org.ow2.asm:asm-util:9.8'
     }
   }
 
   tasks.register('wrapper', Wrapper) {
-    gradleVersion = '8.13'
-    distributionType = Wrapper.DistributionType.BIN
+    gradleVersion = '8.14.3'
   }
 
   tasks.withType(JavaCompile).configureEach {
@@ -52,11 +58,4 @@ subprojects {
   }
 
   tasks.register("prepareKotlinBuildScriptModel") {}
-
-  idea {
-    module {
-      downloadSources = true
-      downloadJavadoc = true
-    }
-  }
 }

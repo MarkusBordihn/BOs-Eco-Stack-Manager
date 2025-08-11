@@ -1,6 +1,6 @@
 plugins {
   id 'maven-publish'
-  id 'net.neoforged.gradle.userdev' version '7.0.145'
+  id 'net.neoforged.gradle.userdev' version '7.0.192'
   id 'com.matthewprenger.cursegradle' version '1.4.0'
   id 'nu.studer.credentials' version '3.0'
   id "com.modrinth.minotaur" version "2.+"
@@ -8,10 +8,6 @@ plugins {
 
 base {
   archivesName = "${mod_id}-neoforge-${minecraft_version}"
-}
-
-if (file('src/main/resources/META-INF/accesstransformer.cfg').exists()) {
-  minecraft.accessTransformers.file file('src/main/resources/META-INF/accesstransformer.cfg')
 }
 
 runs {
@@ -43,12 +39,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
   implementation "net.neoforged:neoforge:${project.neoforge_version}"
-
-  // Include Common code
   compileOnly project(":Common")
-
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.1'
-  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.1'
 }
 
 // NeoGradle compiles the game, but we don't want to add our common code to the game's code

@@ -2,15 +2,15 @@ plugins {
   id 'net.neoforged.moddev' version '2.0.72'
 }
 
-archivesBaseName = "${mod_name}-common-${minecraft_version}"
+base {
+  archivesName = "${project.mod_id}-common-${project.minecraft_version}"
+}
 
 neoForge {
   neoFormVersion = neo_form_version
 }
 
-dependencies {
-  compileOnly group: 'org.spongepowered', name: 'mixin', version: '0.8.7'
-}
+dependencies {}
 
 processResources {
   def buildProps = project.properties.clone()

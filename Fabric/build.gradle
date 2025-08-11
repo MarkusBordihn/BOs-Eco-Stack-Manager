@@ -6,28 +6,16 @@ plugins {
   id "com.modrinth.minotaur" version "2.+"
 }
 
-archivesBaseName = "${mod_id}-fabric-${minecraft_version}"
+base {
+  archivesName = "${project.mod_id}-fabric-${project.minecraft_version}"
+}
 
 dependencies {
   minecraft "com.mojang:minecraft:${minecraft_version}"
   mappings loom.officialMojangMappings()
   modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
   modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
-
-  // Include Common code
   implementation project(":Common")
-
-  // Additional helpful Mods for development (runtime dependency)
-  if (project.hasProperty('fabric_jei_mod') && project.fabric_jei_mod) {
-    modCompileOnlyApi("curse.maven:jei-238222:${project.fabric_jei_mod}")
-    // modRuntimeOnly("curse.maven:jei-238222:${project.fabric_jei_mod}")
-  }
-  if (project.hasProperty('fabric_spark_mod') && project.fabric_spark_mod) {
-    modRuntimeOnly("curse.maven:spark-361579:${project.fabric_spark_mod}")
-  }
-  if (project.hasProperty('fabric_xaeros_minimap_mod') && project.fabric_xaeros_minimap_mod) {
-    modRuntimeOnly("curse.maven:xaeros_minimap-263420:${project.fabric_xaeros_minimap_mod}")
-  }
 }
 
 loom {
@@ -90,7 +78,7 @@ curseforge {
     id = "${project.curseforge_project_id}"
     changelog = rootProject.file("CHANGELOG.md")
     changelogType = 'markdown'
-    releaseType = "beta"
+    releaseType = "${project.curseforge_release_type}"
     addGameVersion("${project.minecraft_version}")
     addGameVersion("Fabric")
     addGameVersion("Quilt")
@@ -109,7 +97,7 @@ modrinth {
   token = "${credentials.forKey('modrinth_api_token')}"
   projectId = "${project.modrinth_project_id}"
   versionNumber = "${version}"
-  versionType = "beta"
+  versionType = "${project.modrinth_release_type}"
   versionName = "${project.mod_name} ${project.version}"
   changelog = rootProject.file("CHANGELOG.md").text
   uploadFile = remapJar
