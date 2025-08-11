@@ -21,7 +21,6 @@ package de.markusbordihn.ecostackmanager.entity;
 
 import de.markusbordihn.ecostackmanager.Constants;
 import de.markusbordihn.ecostackmanager.config.ItemEntityConfig;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -47,13 +46,39 @@ public class ItemEntityManager {
   private ItemEntityManager() {}
 
   public static boolean handleItemJoinWorldEvent(ItemEntity itemEntity, ServerLevel serverLevel) {
-
     // Check if we got a relevant and valid item entity.
     String itemName = getNameFromRelevantItemEntity(itemEntity);
     if (itemName == null || itemName.isEmpty()) {
       return false;
     }
 
+    // Check if item is allowed to be processed
+    if (!isItemAllowedForOptimization(itemName)) {
+      return false;
+    }
+
+    // Get world name and start processing of data
+    String levelName = serverLevel.dimension().location().toString();
+    log.debug("[Item Entity joined {}] {} {}", levelName, itemName, itemEntity);
+
+    // Try to merge with existing items
+    if (tryMergeWithExistingItems(itemEntity, serverLevel, levelName, itemName)) {
+      return true;
+    }
+
+    // Add item to tracking and enforce limits
+    addItemToTrackingAndEnforceLimits(itemEntity, levelName, itemName);
+
+    // Verify item entities after a specific number of tracked items.
+    if (itemEntityVerificationCounter++ >= ItemEntityConfig.verificationCycle) {
+      verifyItemEntities();
+      itemEntityVerificationCounter = 0;
+    }
+
+    return false;
+  }
+
+  private static boolean isItemAllowedForOptimization(String itemName) {
     // Check if item is allowed to be optimized.
     if (!ItemEntityConfig.allowList.isEmpty() && !ItemEntityConfig.allowList.contains(itemName)) {
       log.debug(
@@ -70,82 +95,109 @@ public class ItemEntityManager {
       return false;
     }
 
-    // Get world name and start processing of data
-    String levelName = serverLevel.dimension().location().toString();
-    log.debug("[Item Entity joined {}] {} {}", levelName, itemName, itemEntity);
+    return true;
+  }
 
-    // Check if items could be merged with other items
+  private static boolean tryMergeWithExistingItems(
+      ItemEntity itemEntity, ServerLevel serverLevel, String levelName, String itemName) {
     String itemTypeEntityMapKey = '[' + levelName + ']' + itemName;
     itemTypeEntityMap.computeIfAbsent(itemTypeEntityMapKey, k -> new LinkedHashSet<>());
     Set<ItemEntity> itemTypeEntities = itemTypeEntityMap.get(itemTypeEntityMapKey);
 
     ItemStack itemStack = itemEntity.getItem();
-    if (itemStack.isStackable()
-        && itemStack.getCount() < itemStack.getMaxStackSize()
-        && itemStack.getMaxStackSize() > 1) {
-      // Get basic information about the current item.
-      double x = itemEntity.getX();
-      double y = itemEntity.getY();
-      double z = itemEntity.getZ();
-      int xStart = (int) x - ItemEntityConfig.collectRadius;
-      int yStart = (int) y - ItemEntityConfig.collectRadius;
-      int zStart = (int) z - ItemEntityConfig.collectRadius;
-      int xEnd = (int) x + ItemEntityConfig.collectRadius;
-      int yEnd = (int) y + ItemEntityConfig.collectRadius;
-      int zEnd = (int) z + ItemEntityConfig.collectRadius;
-      boolean itemCanSeeSky = serverLevel.canSeeSky(itemEntity.blockPosition());
-
-      // Compare information with known items.
-      Set<ItemEntity> itemEntities = new HashSet<>(itemTypeEntities);
-      for (ItemEntity existingItemEntity : itemEntities) {
-        ItemStack existingItemStack = existingItemEntity.getItem();
-
-        // Check if they are in an equal position, if both could see the sky, ignore the y values.
-        if (shouldMerge(
-            itemEntity,
-            itemStack,
-            itemCanSeeSky,
-            existingItemEntity,
-            existingItemStack,
-            xStart,
-            yStart,
-            zStart,
-            xEnd,
-            yEnd,
-            zEnd,
-            serverLevel)) {
-          mergeItemStacks(itemEntity, itemStack, existingItemEntity, existingItemStack, x, y, z);
-          return true;
-        }
-      }
+    if (!isItemStackMergeable(itemStack)) {
+      return false;
     }
 
-    // Storing items per world regardless of item type
+    return findAndMergeWithSuitableItem(itemEntity, itemStack, itemTypeEntities, serverLevel);
+  }
+
+  private static boolean isItemStackMergeable(ItemStack itemStack) {
+    return itemStack.isStackable()
+        && itemStack.getCount() < itemStack.getMaxStackSize()
+        && itemStack.getMaxStackSize() > 1;
+  }
+
+  private static boolean findAndMergeWithSuitableItem(
+      ItemEntity itemEntity,
+      ItemStack itemStack,
+      Set<ItemEntity> itemTypeEntities,
+      ServerLevel serverLevel) {
+    // Get basic information about the current item.
+    double x = itemEntity.getX();
+    double y = itemEntity.getY();
+    double z = itemEntity.getZ();
+    MergeAreaBounds bounds = new MergeAreaBounds(x, y, z, ItemEntityConfig.collectRadius);
+    boolean itemCanSeeSky = serverLevel.canSeeSky(itemEntity.blockPosition());
+
+    // Create defensive copy to prevent concurrent modification issues
+    ItemEntity[] entityArray;
+    try {
+      entityArray = itemTypeEntities.toArray(new ItemEntity[0]);
+    } catch (Exception e) {
+      log.debug("Failed to create entity array for merge operation: {}", e.getMessage());
+      return false;
+    }
+
+    for (ItemEntity existingItemEntity : entityArray) {
+      if (existingItemEntity == null || existingItemEntity.isRemoved()) {
+        continue;
+      }
+
+      ItemStack existingItemStack = existingItemEntity.getItem();
+
+      if (shouldMergeItems(
+          itemEntity,
+          itemStack,
+          itemCanSeeSky,
+          existingItemEntity,
+          existingItemStack,
+          bounds,
+          serverLevel)) {
+        mergeItemStacks(itemEntity, itemStack, existingItemEntity, existingItemStack, x, y, z);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static void addItemToTrackingAndEnforceLimits(
+      ItemEntity itemEntity, String levelName, String itemName) {
     itemWorldEntityMap.computeIfAbsent(levelName, k -> new LinkedHashSet<>());
     Set<ItemEntity> itemWorldEntities = itemWorldEntityMap.get(levelName);
     itemWorldEntities.add(itemEntity);
 
-    // Optimized items per world regardless of type if they're exceeding maxNumberOfItems limit.
+    enforceWorldItemLimit(itemWorldEntities, levelName, itemName);
+
+    String itemTypeEntityMapKey = '[' + levelName + ']' + itemName;
+    Set<ItemEntity> itemTypeEntities = itemTypeEntityMap.get(itemTypeEntityMapKey);
+    if (itemTypeEntities != null) {
+      itemTypeEntities.add(itemEntity);
+      enforceTypeItemLimit(itemTypeEntities, itemWorldEntities);
+    }
+  }
+
+  private static void enforceWorldItemLimit(
+      Set<ItemEntity> itemWorldEntities, String levelName, String itemName) {
     int numberOfItemWorldEntities = itemWorldEntities.size();
     if (ItemEntityConfig.maxNumberOfItemsPerWorld > 0
         && numberOfItemWorldEntities > ItemEntityConfig.maxNumberOfItemsPerWorld) {
-      ItemEntity firsItemWorldEntity = itemWorldEntities.iterator().next();
+      ItemEntity firstItemWorldEntity = itemWorldEntities.iterator().next();
       log.debug(
           "[Item Entity World Limit {}] Removing first item {}",
           numberOfItemWorldEntities,
-          firsItemWorldEntity);
-      firsItemWorldEntity.discard();
-      itemWorldEntities.remove(firsItemWorldEntity);
+          firstItemWorldEntity);
+      firstItemWorldEntity.discard();
+      itemWorldEntities.remove(firstItemWorldEntity);
       Set<ItemEntity> itemEntities = itemTypeEntityMap.get('[' + levelName + ']' + itemName);
       if (itemEntities != null) {
-        itemEntities.remove(firsItemWorldEntity);
+        itemEntities.remove(firstItemWorldEntity);
       }
     }
+  }
 
-    // Storing items per type and world
-    itemTypeEntities.add(itemEntity);
-
-    // Optimized items per type and world if exceeding numberOfItemsPerType limit.
+  private static void enforceTypeItemLimit(
+      Set<ItemEntity> itemTypeEntities, Set<ItemEntity> itemWorldEntities) {
     int numberOfItemTypeEntities = itemTypeEntities.size();
     if (ItemEntityConfig.maxNumberOfItemsPerType > 0
         && numberOfItemTypeEntities > ItemEntityConfig.maxNumberOfItemsPerType) {
@@ -158,14 +210,6 @@ public class ItemEntityManager {
       itemTypeEntities.remove(firstItemEntity);
       itemWorldEntities.remove(firstItemEntity);
     }
-
-    // Verify item entities after a specific number of tracked items.
-    if (itemEntityVerificationCounter++ >= ItemEntityConfig.verificationCycle) {
-      verifyItemEntities();
-      itemEntityVerificationCounter = 0;
-    }
-
-    return false;
   }
 
   public static void handleItemLeaveWorldEvent(ItemEntity itemEntity, ServerLevel serverLevel) {
@@ -232,6 +276,9 @@ public class ItemEntityManager {
     // Verify Entities from world specific overview
     int removedItemsWorld = getRemovedItemEntities(itemWorldEntityMap);
 
+    // Clean up empty sets to prevent memory leaks
+    cleanupEmptySets();
+
     if (removedItemsType > 0 || removedItemsWorld > 0) {
       log.debug(
           "[Verification] Removed {} items ({} items per type / {} items per world)",
@@ -239,6 +286,14 @@ public class ItemEntityManager {
           removedItemsType,
           removedItemsWorld);
     }
+  }
+
+  private static void cleanupEmptySets() {
+    // Remove empty sets from itemTypeEntityMap to prevent memory leaks
+    itemTypeEntityMap.entrySet().removeIf(entry -> entry.getValue().isEmpty());
+
+    // Remove empty sets from itemWorldEntityMap to prevent memory leaks
+    itemWorldEntityMap.entrySet().removeIf(entry -> entry.getValue().isEmpty());
   }
 
   private static int getRemovedItemEntities(Map<String, Set<ItemEntity>> itemTypeEntityMap) {
@@ -256,29 +311,32 @@ public class ItemEntityManager {
     return removedItemsType;
   }
 
-  private static boolean shouldMerge(
+  private static boolean shouldMergeItems(
       final ItemEntity itemEntity,
       final ItemStack itemStack,
       final boolean itemCanSeeSky,
       final ItemEntity existingItemEntity,
       final ItemStack existingItemStack,
-      final int xStart,
-      final int yStart,
-      final int zStart,
-      final int xEnd,
-      final int yEnd,
-      final int zEnd,
+      final MergeAreaBounds bounds,
       final ServerLevel serverLevel) {
+    // Add defensive null checks and synchronization to prevent race conditions
+    if (existingItemEntity == null || existingItemStack == null || existingItemEntity.isRemoved()) {
+      return false;
+    }
+
     boolean existingItemCanSeeSky = serverLevel.canSeeSky(existingItemEntity.blockPosition());
     int x = (int) existingItemEntity.getX();
     int y = (int) existingItemEntity.getY();
     int z = (int) existingItemEntity.getZ();
+
+    // Check if entity is still alive before proceeding with merge logic
     return itemEntity.getId() != existingItemEntity.getId()
         && existingItemEntity.isAlive()
+        && !existingItemEntity.isRemoved()
         && ItemEntity.areMergable(itemStack, existingItemStack)
-        && (xStart < x && x < xEnd)
-        && ((itemCanSeeSky && existingItemCanSeeSky) || (yStart < y && y < yEnd))
-        && (zStart < z && z < zEnd);
+        && (bounds.xStart < x && x < bounds.xEnd)
+        && ((itemCanSeeSky && existingItemCanSeeSky) || (bounds.yStart < y && y < bounds.yEnd))
+        && (bounds.zStart < z && z < bounds.zEnd);
   }
 
   private static void mergeItemStacks(
@@ -289,6 +347,12 @@ public class ItemEntityManager {
       final double x,
       final double y,
       final double z) {
+    // Additional safety check before merging
+    if (existingItemEntity == null || existingItemEntity.isRemoved() || itemEntity.isRemoved()) {
+      log.warn("Attempted to merge removed or null item entities");
+      return;
+    }
+
     // Combine item stacks and update the existing item entity.
     ItemStack combinedItemStack =
         ItemEntity.merge(existingItemStack, itemStack, ItemEntityConfig.maxStackSize);
@@ -310,6 +374,20 @@ public class ItemEntityManager {
     if (ItemEntityConfig.movePositionToLastDrop) {
       existingItemEntity.setPos(
           x, existingItemEntity.getY() + ((y - existingItemEntity.getY()) / 4), z);
+    }
+  }
+
+  // Helper class to encapsulate merge area bounds
+  private static class MergeAreaBounds {
+    final int xStart, yStart, zStart, xEnd, yEnd, zEnd;
+
+    MergeAreaBounds(double x, double y, double z, int radius) {
+      this.xStart = (int) x - radius;
+      this.yStart = (int) y - radius;
+      this.zStart = (int) z - radius;
+      this.xEnd = (int) x + radius;
+      this.yEnd = (int) y + radius;
+      this.zEnd = (int) z + radius;
     }
   }
 }

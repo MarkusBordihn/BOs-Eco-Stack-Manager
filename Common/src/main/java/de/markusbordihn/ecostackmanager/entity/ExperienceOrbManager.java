@@ -116,8 +116,13 @@ public class ExperienceOrbManager {
     int yEnd = (int) y + ExperienceOrbConfig.collectRadius;
     int zEnd = (int) z + ExperienceOrbConfig.collectRadius;
 
-    // Compare information with known items.
+    // Compare information with known items - use defensive copy to prevent concurrent modification
     for (ExperienceOrb existingExperienceOrb : new HashSet<>(experienceOrbWorldEntities)) {
+      // Add safety check during iteration
+      if (existingExperienceOrb == null || existingExperienceOrb.isRemoved()) {
+        continue;
+      }
+
       if (shouldMerge(
           experienceOrb, existingExperienceOrb, xStart, yStart, zStart, xEnd, yEnd, zEnd)) {
         mergeExperienceOrbs(experienceOrb, existingExperienceOrb, x, y, z);
@@ -126,7 +131,22 @@ public class ExperienceOrbManager {
     }
 
     experienceOrbWorldEntities.add(experienceOrb);
+
+    // Periodic cleanup to prevent memory leaks
+    if (experienceOrbWorldEntities.size() % 50 == 0) {
+      cleanupRemovedExperienceOrbs();
+    }
+
     return false;
+  }
+
+  private static void cleanupRemovedExperienceOrbs() {
+    for (Set<ExperienceOrb> experienceOrbs : levelExperienceOrbMap.values()) {
+      experienceOrbs.removeIf(orb -> orb == null || orb.isRemoved());
+    }
+
+    // Remove empty sets to prevent memory leaks
+    levelExperienceOrbMap.entrySet().removeIf(entry -> entry.getValue().isEmpty());
   }
 
   private static boolean shouldMerge(
@@ -138,6 +158,11 @@ public class ExperienceOrbManager {
       final int xEnd,
       final int yEnd,
       final int zEnd) {
+    // Add defensive null checks to prevent issues with removed entities
+    if (existingExperienceOrb == null || existingExperienceOrb.isRemoved()) {
+      return false;
+    }
+
     return experienceOrb.getId() != existingExperienceOrb.getId()
         && experienceOrb.isAlive()
         && existingExperienceOrb.isAlive()
@@ -155,8 +180,24 @@ public class ExperienceOrbManager {
       final double x,
       final double y,
       final double z) {
+    // Additional safety checks before merging
+    if (experienceOrb == null
+        || existingExperienceOrb == null
+        || experienceOrb.isRemoved()
+        || existingExperienceOrb.isRemoved()) {
+      log.warn("Attempted to merge removed or null experience orbs");
+      return;
+    }
+
     // Combine experience orb values.
     int newExperienceValue = existingExperienceOrb.getValue() + experienceOrb.getValue();
+
+    // Validate the new experience value to prevent overflow or invalid values
+    if (newExperienceValue <= 0 || newExperienceValue < existingExperienceOrb.getValue()) {
+      log.warn("Invalid experience value after merge: {} (overflow detected)", newExperienceValue);
+      return;
+    }
+
     log.debug(
         "[Merging Experience Orb] {} with {} and {} xp.",
         experienceOrb,

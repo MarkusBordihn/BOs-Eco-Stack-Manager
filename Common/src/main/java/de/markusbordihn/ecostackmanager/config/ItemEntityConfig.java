@@ -19,15 +19,18 @@
 
 package de.markusbordihn.ecostackmanager.config;
 
+import de.markusbordihn.ecostackmanager.Constants;
 import java.io.File;
 import java.util.Properties;
 import java.util.Set;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ItemEntityConfig extends Config {
 
   public static final String CONFIG_FILE_NAME = "item_entity.cfg";
   public static final String CONFIG_FILE_HEADER = "Item Entity Configuration";
-
+  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
   public static Set<String> allowList = Set.of();
   public static Set<String> denyList = Set.of("minecraft:diamond", "minecraft:diamond_block");
 
@@ -48,21 +51,78 @@ public class ItemEntityConfig extends Config {
     Properties properties = readConfigFile(configFile);
     Properties unmodifiedProperties = (Properties) properties.clone();
 
-    // Config entries
+    // Config entries with validation
     allowList = parseConfigValue(properties, "allow_list", allowList);
     denyList = parseConfigValue(properties, "deny_list", denyList);
 
-    collectRadius = parseConfigValue(properties, "collect_radius", collectRadius);
+    collectRadius = validateAndParseRadius(properties, "collect_radius", collectRadius);
     maxNumberOfItemsPerWorld =
-        parseConfigValue(properties, "max_number_of_items_per_world", maxNumberOfItemsPerWorld);
+        validateAndParsePositiveInteger(
+            properties, "max_number_of_items_per_world", maxNumberOfItemsPerWorld);
     maxNumberOfItemsPerType =
-        parseConfigValue(properties, "max_number_of_items_per_type", maxNumberOfItemsPerType);
-    maxStackSize = parseConfigValue(properties, "max_stack_size", maxStackSize);
+        validateAndParsePositiveInteger(
+            properties, "max_number_of_items_per_type", maxNumberOfItemsPerType);
+    maxStackSize = validateAndParseStackSize(properties, "max_stack_size", maxStackSize);
     movePositionToLastDrop =
         parseConfigValue(properties, "move_position_to_last_drop", movePositionToLastDrop);
-    verificationCycle = parseConfigValue(properties, "verification_cycle", verificationCycle);
+    verificationCycle =
+        validateAndParseVerificationCycle(properties, "verification_cycle", verificationCycle);
 
     // Update config file if needed
     updateConfigFileIfChanged(configFile, CONFIG_FILE_HEADER, properties, unmodifiedProperties);
+  }
+
+  private static int validateAndParseRadius(Properties properties, String key, int defaultValue) {
+    int value = parseConfigValue(properties, key, defaultValue);
+    if (value < 0) {
+      log.warn("Invalid collect_radius value: {}. Using default: {}", value, defaultValue);
+      return defaultValue;
+    }
+    if (value > 64) {
+      log.warn(
+          "Collect_radius value too large ({}), capping at 64 to prevent performance issues",
+          value);
+      return 64;
+    }
+    return value;
+  }
+
+  private static int validateAndParsePositiveInteger(
+      Properties properties, String key, int defaultValue) {
+    int value = parseConfigValue(properties, key, defaultValue);
+    if (value < 0) {
+      log.warn("Invalid {} value: {}. Using default: {}", key, value, defaultValue);
+      return defaultValue;
+    }
+    return value;
+  }
+
+  private static int validateAndParseStackSize(
+      Properties properties, String key, int defaultValue) {
+    int value = parseConfigValue(properties, key, defaultValue);
+    if (value < 1) {
+      log.warn("Invalid max_stack_size value: {}. Using default: {}", value, defaultValue);
+      return defaultValue;
+    }
+    if (value > 64) {
+      log.warn(
+          "Max_stack_size value too large ({}), capping at 64 to match Minecraft limits", value);
+      return 64;
+    }
+    return value;
+  }
+
+  private static int validateAndParseVerificationCycle(
+      Properties properties, String key, int defaultValue) {
+    int value = parseConfigValue(properties, key, defaultValue);
+    if (value < 1) {
+      log.warn("Invalid verification_cycle value: {}. Using default: {}", value, defaultValue);
+      return defaultValue;
+    }
+    if (value > 1000) {
+      log.warn("Verification_cycle value too large ({}), capping at 1000 for performance", value);
+      return 1000;
+    }
+    return value;
   }
 }
