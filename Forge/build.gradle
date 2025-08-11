@@ -8,9 +8,10 @@ plugins {
 
 apply plugin: 'net.minecraftforge.gradle'
 
-archivesBaseName = "${mod_id}-forge-${minecraft_version}"
+base {
+  archivesName = "${project.mod_id}-forge-${project.minecraft_version}"
+}
 
-println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
   mappings channel: 'official', version: "${project.minecraft_version}"
 
@@ -96,17 +97,10 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
-  // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
-  // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
-  // The userdev artifact is a special name and will get all sorts of transformations applied to it.
   minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
 
   // Include Common code
   compileOnly project(":Common")
-
-  // Additional helpful Mods for development (runtime dependency)
-  // runtimeOnly "curse.maven:xaeros_minimap-263420:${project.xaeros_minimap_mod}"
-  // runtimeOnly "curse.maven:spark-361579:${project.spark_mod}"
 
   // Hack fix for now, force jopt-simple to be exactly 5.0.4 because Mojang ships that version, but some transitive dependencies request 6.0+
   implementation('net.sf.jopt-simple:jopt-simple:5.0.4') { version { strictly '5.0.4' } }
