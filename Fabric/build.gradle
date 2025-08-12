@@ -76,7 +76,7 @@ curseforge {
     id = "${project.curseforge_project_id}"
     changelog = rootProject.file("CHANGELOG.md")
     changelogType = 'markdown'
-    releaseType = "beta"
+    releaseType = "${project.curseforge_release_type}"
     addGameVersion("${project.minecraft_version}")
     addGameVersion("Fabric")
     addGameVersion("Quilt")
@@ -95,7 +95,7 @@ modrinth {
   token = "${credentials.forKey('modrinth_api_token')}"
   projectId = "${project.modrinth_project_id}"
   versionNumber = "${version}"
-  versionType = "beta"
+  versionType = "${project.modrinth_release_type}"
   versionName = "${project.mod_name} ${project.version}"
   changelog = rootProject.file("CHANGELOG.md").text
   uploadFile = remapJar
