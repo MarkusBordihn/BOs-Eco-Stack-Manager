@@ -207,7 +207,7 @@ public class ExperienceOrbManager {
     // Merge experience orbs values and check if it was successful.
     if (ReflectionUtils.invokeIntMethod(
         existingExperienceOrb,
-        new String[] {"setValue", "method_66666", "value"},
+        new String[] {"setValue", "method_66666", "value", "m_384304_"},
         newExperienceValue)) {
 
       // Discard experience orb if merge was successful, before moving the existing experience orb.

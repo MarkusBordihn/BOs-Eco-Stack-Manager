@@ -22,7 +22,7 @@ package de.markusbordihn.ecostackmanager.commands;
 import de.markusbordihn.ecostackmanager.Constants;
 import de.markusbordihn.ecostackmanager.commands.manager.CommandManager;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

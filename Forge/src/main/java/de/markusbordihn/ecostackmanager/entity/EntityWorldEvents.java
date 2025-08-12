@@ -25,38 +25,33 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.listener.Priority;
+import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
 @SuppressWarnings("unused")
-@EventBusSubscriber
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.FORGE)
 public class EntityWorldEvents {
 
   private EntityWorldEvents() {}
 
-  @SubscribeEvent(priority = EventPriority.HIGH)
-  public static void handleEntityJoinWorldEvent(final EntityJoinLevelEvent event) {
-    if (event.isCanceled() || !(event.getLevel() instanceof ServerLevel serverLevel)) {
-      return;
+  @SubscribeEvent(priority = Priority.HIGH)
+  public static boolean handleEntityJoinWorldEvent(final EntityJoinLevelEvent event) {
+    if (!(event.getLevel() instanceof ServerLevel serverLevel)) {
+      return false;
     }
 
     if (event.getEntity() instanceof ExperienceOrb experienceOrb && !Constants.MOD_CLUMPS_LOADED) {
-      if (ExperienceOrbManager.handleExperienceOrbJoinWorldEvent(experienceOrb, serverLevel)
-          && event.isCancelable()) {
-        event.setCanceled(true);
-      }
+      return ExperienceOrbManager.handleExperienceOrbJoinWorldEvent(experienceOrb, serverLevel);
     } else if (event.getEntity() instanceof ItemEntity itemEntity && !Constants.MOD_CLUMPS_LOADED) {
-      if (ItemEntityManager.handleItemJoinWorldEvent(itemEntity, serverLevel)
-          && event.isCancelable()) {
-        event.setCanceled(true);
-      }
+      return ItemEntityManager.handleItemJoinWorldEvent(itemEntity, serverLevel);
     }
+    return false;
   }
 
-  @SubscribeEvent(priority = EventPriority.HIGH)
+  @SubscribeEvent(priority = Priority.HIGH)
   public static void handleEntityLeaveWorldEvent(final EntityLeaveLevelEvent event) {
-    if (event.isCanceled() || !(event.getLevel() instanceof ServerLevel serverLevel)) {
+    if (!(event.getLevel() instanceof ServerLevel serverLevel)) {
       return;
     }
 

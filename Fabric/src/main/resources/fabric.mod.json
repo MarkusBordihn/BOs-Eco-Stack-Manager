@@ -20,17 +20,13 @@
     ],
     "client": [
       "de.markusbordihn.ecostackmanager.EcoStackManagerClient"
-    ],
-    "fabric-gametest": [
-      "de.markusbordihn.ecostackmanager.gametest.SmokeTest"
     ]
   },
   "mixins": [],
   "depends": {
     "fabricloader": ">=0.16",
     "fabric": "*",
-    "minecraft": "1.21.5",
+    "minecraft": "1.21.6",
     "java": ">=21"
-  },
-  "suggests": {}
+  }
 }
