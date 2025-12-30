@@ -19,14 +19,12 @@
 
 package de.markusbordihn.ecostackmanager;
 
-import cpw.mods.modlauncher.Launcher;
-import cpw.mods.modlauncher.api.IEnvironment;
 import de.markusbordihn.ecostackmanager.config.Config;
 import de.markusbordihn.ecostackmanager.debug.DebugManager;
 import de.markusbordihn.ecostackmanager.mods.AdditionalModsMessages;
-import java.util.Optional;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,11 +43,7 @@ public class EcoStackManager {
     Config.register();
 
     log.info("{} Debug Manager ...", Constants.LOG_REGISTER_PREFIX);
-    Optional<String> version =
-        Launcher.INSTANCE.environment().getProperty(IEnvironment.Keys.VERSION.get());
-    if (version.isPresent() && "MOD_DEV".equals(version.get())) {
-      DebugManager.setDevelopmentEnvironment(true);
-    }
+    DebugManager.setDevelopmentEnvironment(!FMLEnvironment.isProduction());
     DebugManager.checkForDebugLogging(Constants.LOG_NAME);
 
     log.info("{} additional mod support ...", Constants.LOG_REGISTER_PREFIX);
