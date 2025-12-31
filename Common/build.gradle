@@ -1,9 +1,9 @@
 plugins {
-  id 'net.neoforged.moddev' version '2.0.107'
+  id 'net.neoforged.moddev' version '2.0.126'
 }
 
 base {
-  archivesName = "${project.mod_id}-common-${project.minecraft_version}"
+  archivesName = "${mod_name}-common-${minecraft_version}"
 }
 
 neoForge {

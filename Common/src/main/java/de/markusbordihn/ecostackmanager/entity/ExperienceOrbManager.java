@@ -52,7 +52,7 @@ public class ExperienceOrbManager {
     }
 
     // Get world name and ignore orb if it has 0 xp.
-    String levelName = serverLevel.dimension().location().toString();
+    String levelName = serverLevel.dimension().identifier().toString();
     if (experienceOrb.getValue() <= 0) {
       log.debug(
           "[Removed Ghost Experience Orb] {} with {} xp from {}.",
@@ -81,7 +81,7 @@ public class ExperienceOrbManager {
       ExperienceOrb experienceOrb, ServerLevel serverLevel) {
 
     // Get level name and start processing of data
-    String levelName = serverLevel.dimension().location().toString();
+    String levelName = serverLevel.dimension().identifier().toString();
     log.debug(
         "Experience Orb {} with {} xp left {}.",
         experienceOrb,

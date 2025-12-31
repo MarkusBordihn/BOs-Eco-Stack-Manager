@@ -1,6 +1,7 @@
 {
   "pack": {
     "description": "Eco Stack Manager: Resources",
-    "pack_format": 55
+    "max_format": 94,
+    "min_format": 94
   }
 }

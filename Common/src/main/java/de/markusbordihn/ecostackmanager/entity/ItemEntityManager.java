@@ -58,7 +58,7 @@ public class ItemEntityManager {
     }
 
     // Get world name and start processing of data
-    String levelName = serverLevel.dimension().location().toString();
+    String levelName = serverLevel.dimension().identifier().toString();
     log.debug("[Item Entity joined {}] {} {}", levelName, itemName, itemEntity);
 
     // Try to merge with existing items
@@ -220,7 +220,7 @@ public class ItemEntityManager {
     }
 
     // Get world name and start processing of data
-    String levelName = serverLevel.dimension().location().toString();
+    String levelName = serverLevel.dimension().identifier().toString();
 
     // Remove item from world map.
     Set<ItemEntity> itemWorldEntities = itemWorldEntityMap.get(levelName);
