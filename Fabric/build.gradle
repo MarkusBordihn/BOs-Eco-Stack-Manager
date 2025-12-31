@@ -76,6 +76,10 @@ tasks.withType(JavaCompile).configureEach {
   source(project(":Common").sourceSets.main.allSource)
 }
 
+tasks.withType(Test).configureEach {
+  failOnNoDiscoveredTests = false
+}
+
 // CurseForge Publishing
 if (project.hasProperty('curseforge_project_id') && project.curseforge_project_id) {
   tasks.register('curseforge', net.darkhax.curseforgegradle.TaskPublishCurseForge) {
